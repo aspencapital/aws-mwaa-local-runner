@@ -16,6 +16,13 @@ Custom connections can be added to `docker/.env` using the format `AIRFLOW_CONN_
 AIRFLOW_CONN_MSSQL_QA1=mssql://saNodeQA:password@devserver.flanderscapital.com%5Cqa1:49637
 ```
 
+A quick way to figure out the `.env` value for a connection is to take a peak at the values already loaded into airflow with the following commands:
+
+```bash
+airflow connections export conn.env --format env
+less conn.env
+```
+
 ## Running the Airflow CLI
 You can shell into the container running `amazon/mwaa-local:2.0.2` to run airflow cli commands, but there is an extra step you must take to properly setup your environment.
 
@@ -56,3 +63,18 @@ docker exec -it 0000 bash
 # airflow commands now work
 airflow info
 ```
+
+## Samba
+Found out the MWAA does not currently support the `smbclient` command, see [Samba hook and smbclient](https://forums.aws.amazon.com/thread.jspa?threadID=336238). There is a test dag for samba, but it will not work. You will get an error similar to the following:
+
+```
+FileNotFoundError: [Errno 2] No such file or directory: b'smbclient': b'smbclient'
+```
+
+Example Connection .env value
+```ini
+AIRFLOW_CONN_SAMBA_QA=samba://saNodeQA:password@cottonwood.flanderscapital.com/aUsers-QA%2FShared%2FLoan%20Documents%20-%20Active
+```
+
+## References
+* https://github.com/airflow-plugins/Example-Airflow-DAGs

@@ -6,7 +6,7 @@ from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
 
 default_args = {
     'owner': 'airflow',
-    'start_date': dt.datetime(2019, 11, 8, 23, 00, 00),
+    'start_date': dt.datetime(2021, 1, 1, 00, 00, 00),
     'concurrency': 1,
     'retries': 0
 }

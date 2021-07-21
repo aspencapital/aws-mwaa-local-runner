@@ -76,5 +76,22 @@ Example Connection .env value
 AIRFLOW_CONN_SAMBA_QA=samba://saNodeQA:password@cottonwood.flanderscapital.com/aUsers-QA%2FShared%2FLoan%20Documents%20-%20Active
 ```
 
-## References
+## requirements.txt
+Use the `test-requirements` subcommand to validate your dependencies before uploading to MWAA.
+
+```bash
+./mwaa-local-env test-requirements
+```
+
+Your requirements should come from the [Reference for package extras](http://airflow.apache.org/docs/apache-airflow/2.0.2/extra-packages-ref.html) as described in the AWS documentation for [Installing Python dependencies | Step two: Create the requirements.txt | 2. Review the Airflow package extras](https://docs.aws.amazon.com/mwaa/latest/userguide/working-dags-dependencies.html). Trying to install dependencies directly (e.g. `apache-airflow-providers-microsoft-mssql==2.0.0`) will work locally but fail with MWAA.
+
+```ini
+# requirements.txt
+--constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.0.2/constraints-3.7.txt"
+
+apache-airflow[microsoft.mssql,odbc,samba]==2.0.2
+PySmbClient==0.1.5
+```
+
+# References
 * https://github.com/airflow-plugins/Example-Airflow-DAGs

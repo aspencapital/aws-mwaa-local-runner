@@ -1,4 +1,4 @@
-apache-airflow-providers-microsoft-mssql==2.0.0
-apache-airflow-providers-odbc==2.0.0
-apache-airflow-providers-samba==2.0.0
+--constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.0.2/constraints-3.7.txt"
+
+apache-airflow[microsoft.mssql,odbc,samba]==2.0.2
 PySmbClient==0.1.5

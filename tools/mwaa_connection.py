@@ -50,8 +50,8 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Create a properly encoded connection string that can be loaded as an environment variable for"
-        " airflow, AIRFLOW_CONN_<conn_id>."
+        description="Create a properly encoded connection string that can be loaded as an environment variable for "
+        "airflow, AIRFLOW_CONN_<conn_id>."
     )
     parser.add_argument(
         "-c",

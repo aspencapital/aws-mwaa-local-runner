@@ -5,9 +5,9 @@ import re
 from airflow import DAG, settings
 from airflow.models import Connection
 from airflow.operators.python import PythonOperator
-from airflow.utils.dates import days_ago
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
+from airflow.utils.dates import days_ago
 
 SM_SECRETID_NAME = "airflow/connections/mssql_qa1"
 SQL_COMMAND = """SELECT TOP(9)* FROM [TDS LOANS];"""

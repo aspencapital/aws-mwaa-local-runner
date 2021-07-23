@@ -180,3 +180,4 @@ grep aws_session_token ~/.aws/credentials | awk '{print $3}' | pbcopy
 # References
 * [Example Airflow DAGs](https://github.com/airflow-plugins/Example-Airflow-DAGs)
 * [Linting & Formatting](https://py-vscode.readthedocs.io/en/latest/files/linting.html)
+* [Setup Black and Isort in VSCode](https://cereblanco.medium.com/setup-black-and-isort-in-vscode-514804590bf9)

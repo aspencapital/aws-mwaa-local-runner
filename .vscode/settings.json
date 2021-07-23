@@ -7,4 +7,13 @@
   ],
   "python.linting.flake8Enabled": true,
   "python.pythonPath": "/usr/local/anaconda3/envs/mwaa/bin/python",
+  "python.sortImports.args": [
+    "--profile",
+    "black"
+  ],
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
 }

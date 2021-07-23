@@ -166,7 +166,7 @@ grep aws_session_token ~/.aws/credentials | awk '{print $3}' | pbcopy
 # you can url encode and build the environment variable manually
 # OR
 # use mwaa_connection.py to build connection string and copy to clipboard
-./tools/mwaa_connection.py -v \
+./tools/mwaa_connection.py \
   -l ASIAZW65Y6SIACFBUPVE \
   -p Air2oG9L3cIT0ioO0OBtehvn6nYfR2r1FQgM3YEy \
   -x region_name=us-west-2 \

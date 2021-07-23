@@ -132,7 +132,7 @@ brew install unixodbc
 ```
 
 ## Connecting to AWS with SAML
-The easiest way to establish a connection is to use the `aws_default` connection. You must use your temporary saml credentials after calling `saml2aws login`. You will pull the necessary values from `~/.aws/credentials` under the profile name corresponding to your saml session. In my case, I have named that profile `saml`.
+The easiest way to establish a connection is to use the `aws_default` connection. You must use your temporary saml credentials after calling `saml2aws login`. You will pull the necessary values from `~/.aws/credentials` under the profile name corresponding to your saml session. In my case, I have named that profile `saml`. You can use `tools/mwaa_connection.py` to build the connection string and copy the result to the clipboard.
 
 Example of credentials after authenticating with `saml2aws login`.
 ```ini
@@ -156,6 +156,19 @@ AIRFLOW_CONN_AWS_DEFAULT=aws://ASIAZW65Y6SIEXW2J7NX:3APVbQRrUwsxImuHoXOVaJjIIcc0
 ```bash
 # copy session token to clipboard
 grep aws_session_token ~/.aws/credentials | awk '{print $3}' | pbcopy
+
+# you can url encode and build the environment variable manually
+# OR
+# use mwaa_connection.py to build connection string and copy to clipboard
+./tools/mwaa_connection.py -v \
+  -l ASIAZW65Y6SIACFBUPVE \
+  -p Air2oG9L3cIT0ioO0OBtehvn6nYfR2r1FQgM3YEy \
+  -x region_name=us-west-2 \
+  role_arn=arn:aws:iam::499849230022:role/OrganizationAccountAccessRole \
+  aws_session_token=FwoGZXIvYXdzEAkaDNzgCTh36vwG/QdUyiKxAvmtOMrF6suFOmnp4CxoNKXPX7JzBaC+KWn8DymCTTylpdndri6QL11O4bqi0xldbn9k1pYMQ0zzLUMpgEd6qqRwBtJe+rigYC6ddvuqxhiKLxbfdRtNpMiqaG6kqYyJ9fux0z46B0v2KKMoaFXNS4yWXJqHqqNyXZ7pJx6Hdy81+1Dz3rn5As8cHQvkGI19HL3y5SzXkrI1bmRGA8GTw97IxmQKmCXE6tcSWjkxNlMG1TgzYk/kdS9uk9wefvkivAPeJBP9pSxy7mx8VNA1G+Vpowhbys6S0dktdl9+yq7Hlkocv0M3Y1ao9dTlRNWCcoi3ofdqs+j7Ftnomy7Cc6dej94ca0yX3K4qbd7aGiLpuBxB0MfhRdH8JH0y63IwBVsN42X2xmqi/cGQNq27IeHvKNTQ64cGMipbcW/wKhjyPIiAdi7jnf3UqNBM04TcICoCEczmK+NegxDG2sHQNFFq19k= \
+  --clipboard
+
+# with the result in your clipboard, update docker/.env for your connection string
 ```
 
 # References

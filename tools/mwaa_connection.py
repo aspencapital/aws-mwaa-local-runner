@@ -50,16 +50,17 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--conn_type', default='aws')
+    parser = argparse.ArgumentParser(
+        description='Create a properly encoded connection string that can be loaded as an environment variable for airflow, AIRFLOW_CONN_<conn_id>.')
+    parser.add_argument('-c', '--conn_type', default='aws',
+                        help='connection type; e.g. aws, mssql, samba')
     parser.add_argument("--clipboard", type=str2bool, nargs='?',
                         const=True, default=False,
-                        help="Copy to clipboard")
+                        help="copy to clipboard")
     parser.add_argument('--host', nargs='?', default='')
     parser.add_argument('-l', '--login', required=True)
     parser.add_argument('-p', '--password', required=True)
-    parser.add_argument('-v', dest='verbose',
-                        action='store_true', help='verbosity')
-    parser.add_argument('-x', '--extras', nargs='*')
+    parser.add_argument('-x', '--extras', nargs='*',
+                        help='extra metadata; space delimited <key>=<value> pairs')
     args = parser.parse_args()
     main(args)

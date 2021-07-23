@@ -5,45 +5,44 @@ import re
 import subprocess
 import urllib.parse
 
-# https://stackoverflow.com/a/43357954
-
 
 def str2bool(v):
+    # https://stackoverflow.com/a/43357954
     if isinstance(v, bool):
         return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+    if v.lower() in ("yes", "true", "t", "y", "1"):
         return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+    elif v.lower() in ("no", "false", "f", "n", "0"):
         return False
     else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+        raise argparse.ArgumentTypeError("Boolean value expected.")
 
 
 def main(args):
 
     # base connection string
-    conn_string = '{0}://{1}:{2}@{3}'.format(
+    conn_string = "{0}://{1}:{2}@{3}".format(
         args.conn_type,
         urllib.parse.quote_plus(args.login),
         urllib.parse.quote_plus(args.password),
-        args.host)
+        args.host,
+    )
 
-    if (args.extras):
+    if args.extras:
         # capture key/value of extra
-        p = re.compile('^([^=]+)=(.*)')
+        p = re.compile("^([^=]+)=(.*)")
 
         for i, extra in enumerate(args.extras):
             # prefix
-            conn_string += '?' if i == 0 else '&'
+            conn_string += "?" if i == 0 else "&"
 
             # split key/value
             m = p.match(extra)
             key = m.group(1)
             value = m.group(2)
 
-            conn_string += '{0}={1}'.format(key,
-                                            urllib.parse.quote_plus(value))
-    print('connection string:\n{}'.format(conn_string))
+            conn_string += "{0}={1}".format(key, urllib.parse.quote_plus(value))
+    print("connection string:\n{}".format(conn_string))
 
     if args.clipboard:
         subprocess.run("pbcopy", universal_newlines=True, input=conn_string)
@@ -51,16 +50,31 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Create a properly encoded connection string that can be loaded as an environment variable for airflow, AIRFLOW_CONN_<conn_id>.')
-    parser.add_argument('-c', '--conn_type', default='aws',
-                        help='connection type; e.g. aws, mssql, samba')
-    parser.add_argument("--clipboard", type=str2bool, nargs='?',
-                        const=True, default=False,
-                        help="copy to clipboard")
-    parser.add_argument('--host', nargs='?', default='')
-    parser.add_argument('-l', '--login', required=True)
-    parser.add_argument('-p', '--password', required=True)
-    parser.add_argument('-x', '--extras', nargs='*',
-                        help='extra metadata; space delimited <key>=<value> pairs')
+        description="Create a properly encoded connection string that can be loaded as an environment variable for"
+        " airflow, AIRFLOW_CONN_<conn_id>."
+    )
+    parser.add_argument(
+        "-c",
+        "--conn_type",
+        default="aws",
+        help="connection type; e.g. aws, mssql, samba",
+    )
+    parser.add_argument(
+        "--clipboard",
+        type=str2bool,
+        nargs="?",
+        const=True,
+        default=False,
+        help="copy to clipboard",
+    )
+    parser.add_argument("--host", nargs="?", default="")
+    parser.add_argument("-l", "--login", required=True)
+    parser.add_argument("-p", "--password", required=True)
+    parser.add_argument(
+        "-x",
+        "--extras",
+        nargs="*",
+        help="extra metadata; space delimited <key>=<value> pairs",
+    )
     args = parser.parse_args()
     main(args)

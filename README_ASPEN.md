@@ -3,6 +3,32 @@ This README clarifies usage of `aws-mwaa-local-runner` for development purposes.
 
 ## Configuration
 
+## Python Virtual Environment
+Ananconda is used to control the python environment. This expects conda to be installed on your Mac.
+
+The followind setup should occur in a terminal outside of VSCode:
+
+```bash
+brew install --cask anaconda
+
+# there was a permissions issue with ~/.conda directory after installation
+# the directory was owned by root which causes other problems
+# if this happens use the following to fix
+sudo chown -R $USER:staff ~/.conda
+
+# identify the shell you are using
+conda init zsh
+# relaunch terminal
+
+# create a virtual environment for mwaa development
+conda create -n mwaa python=3.7 autopep8
+condo info --envs
+```
+
+To use the virtual environment in VSCode integrated terminal without having to manually switch, you will need to set `terminal.integrated.inheritEnv` to `false`. See [Integrated Terminal](https://code.visualstudio.com/updates/v1_36#_launch-terminals-with-clean-environments) in the linked Release Notes.
+
+The correct interpreter will be chosen via the `python.pythonPath` setting in `.vscode/settings.json` file.
+
 ### Environment Variables
 Add custom environment variables with a `docker/.env` file which will not be captured by git.
 
@@ -91,6 +117,45 @@ Your requirements should come from the [Reference for package extras](http://air
 
 apache-airflow[microsoft.mssql,odbc,samba]==2.0.2
 PySmbClient==0.1.5
+```
+
+## Testing
+
+```bash
+# install dependencies in conda:mwaa
+pip install -r docker/config/requirements.txt -c docker/config/constraints.txt
+pip install -r dags/requirements.txt
+
+# make MsSqlOperator work
+brew install postgresql
+brew install unixodbc
+```
+
+## Connecting to AWS with SAML
+The easiest way to establish a connection is to use the `aws_default` connection. You must use your temporary saml credentials after calling `saml2aws login`. You will pull the necessary values from `~/.aws/credentials` under the profile name corresponding to your saml session. In my case, I have named that profile `saml`.
+
+Example of credentials after authenticating with `saml2aws login`.
+```ini
+# ~/.aws/credentials
+[saml]
+aws_access_key_id        = ASIAZW65Y6SIEXW2J7NX
+aws_secret_access_key    = 3APVbQRrUwsxImuHoXOVaJjIIcc0VZ35IgsmNGnT
+aws_session_token        = FwoGZXIvYXdzEAgaDEmsIvuXH0YMOZWsOSKxAo9X/XnC2lKqcDPgVCSQOI9KC6PiPMxXfrsIMkCHtKlQZZk6Z1MHbxr3alkjs05ZHUEK/7Ia5IonypTIwiOnU/7xJBj4ctHcaePTKBZ5pKx8MKLvsJNXY9xqiWbQzkj1oXQYF2cVjas8QaBwAjLNI0LHufkGBS8EebQ4F2WMCB9GtDoPgZ4BKRME4Fni3TAuflBoA0gtKYR5iSMHdBBb1jiB2HJYlD+c+Sgp88We+qCZV6FV/lXWX0JISAwIVILEzGnSIdq9PZ9w41Mj6XMlmC9LzNULIcOVfwUsi6nAJKoXo89l1VjIsphrtZpBU8HiChLXwLowCzFlnLn+4h76+nH/6HrjUYtsvKpYihU1tGaod1HeZ/02wdh4XGjpUyVAU31hTRMym0TBwtDDMo+PRKfLKOGm64cGMipxx6Q8IMTKMI24idcs3WVz5U9BtGEkn8uucOML1/3XD2FPqgjFOUYGcAE=
+```
+
+Update the `docker/.env` file with `AIRFLOW_CONN_AWS_DEFAULT` to use the temporary credentials. Additional steps are required
+* URL encode `aws_secret_access_key` for password value
+* URL encode `aws_session_token`
+* set `region_name`
+* URL encode `role_arn`
+
+```ini
+AIRFLOW_CONN_AWS_DEFAULT=aws://ASIAZW65Y6SIEXW2J7NX:3APVbQRrUwsxImuHoXOVaJjIIcc0VZ35IgsmNGnT@?region_name=us-west-2&role_arn=arn:aws:iam::499849230022:role%2FOrganizationAccountAccessRole&aws_session_token=FwoGZXIvYXdzEAgaDEmsIvuXH0YMOZWsOSKxAo9X%2FXnC2lKqcDPgVCSQOI9KC6PiPMxXfrsIMkCHtKlQZZk6Z1MHbxr3alkjs05ZHUEK%2F7Ia5IonypTIwiOnU%2F7xJBj4ctHcaePTKBZ5pKx8MKLvsJNXY9xqiWbQzkj1oXQYF2cVjas8QaBwAjLNI0LHufkGBS8EebQ4F2WMCB9GtDoPgZ4BKRME4Fni3TAuflBoA0gtKYR5iSMHdBBb1jiB2HJYlD%2Bc%2BSgp88We%2BqCZV6FV%2FlXWX0JISAwIVILEzGnSIdq9PZ9w41Mj6XMlmC9LzNULIcOVfwUsi6nAJKoXo89l1VjIsphrtZpBU8HiChLXwLowCzFlnLn%2B4h76%2BnH%2F6HrjUYtsvKpYihU1tGaod1HeZ%2F02wdh4XGjpUyVAU31hTRMym0TBwtDDMo%2BPRKfLKOGm64cGMipxx6Q8IMTKMI24idcs3WVz5U9BtGEkn8uucOML1%2F3XD2FPqgjFOUYGcAE%3D
+```
+
+```bash
+# copy session token to clipboard
+grep aws_session_token ~/.aws/credentials | awk '{print $3}' | pbcopy
 ```
 
 # References

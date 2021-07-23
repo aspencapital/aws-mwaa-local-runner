@@ -1,0 +1,4 @@
+{
+  "editor.formatOnSave": true,
+  "python.pythonPath": "/usr/local/anaconda3/envs/mwaa/bin/python"
+}

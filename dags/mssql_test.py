@@ -22,22 +22,25 @@ default_args = {
 
 
 def load_connection(**kwargs):
+    secret_id = kwargs.get("secret_id", None)
+
     # set up Secrets Manager
     hook = AwsBaseHook(client_type="secretsmanager")
     client = hook.get_client_type("secretsmanager")
-    response = client.get_secret_value(SecretId=SM_SECRETID_NAME)
-    connectionString = response["SecretString"]
+    connectionString = client.get_secret_value(SecretId=secret_id)["SecretString"]
 
     # get the conn_id
-    match = re.search("([^/]+)$", SM_SECRETID_NAME)
+    match = re.search("([^/]+)$", secret_id)
     conn_id = match.group(1)
 
     # lookup current connections
     session = settings.Session()
-    connections = map(lambda x: str(x), session.query(Connection).all())
+    existing_connection = (
+        session.query(Connection).filter(Connection.conn_id == conn_id).first()
+    )
 
     # add connection if not already present
-    if conn_id not in connections:
+    if not existing_connection:
         print(f"adding new conn_id: {conn_id}")
         conn = Connection(conn_id=conn_id, uri=connectionString)
         session.add(conn)
@@ -53,7 +56,12 @@ dag = DAG(
     dagrun_timeout=dt.timedelta(hours=2),
     schedule_interval="@once",
 )
-t1 = PythonOperator(dag=dag, task_id="load_connection", python_callable=load_connection)
+t1 = PythonOperator(
+    dag=dag,
+    task_id="load_connection",
+    op_kwargs={"secret_id": SM_SECRETID_NAME},
+    python_callable=load_connection,
+)
 t2 = MsSqlOperator(
     dag=dag,
     task_id="selecting_table",

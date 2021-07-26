@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import argparse
+import configparser
+import os
 import re
 import subprocess
 import urllib.parse
@@ -19,12 +21,32 @@ def str2bool(v):
 
 
 def main(args):
+    login = ""
+    password = ""
+
+    if args.profile:
+        config = configparser.ConfigParser()
+        config.read(os.path.expanduser("~/.aws/credentials"))
+        login = config[args.profile]["aws_access_key_id"]
+        password = config[args.profile]["aws_secret_access_key"]
+        region = config[args.profile]["region"]
+        token = config[args.profile]["aws_session_token"]
+
+        # use the extras loop to process region and token
+        if region:
+            args.extras.append(f"region_name={region}")
+        if token:
+            args.extras.append(f"aws_session_token={token}")
+
+    else:
+        login = args.login
+        password = args.password
 
     # base connection string
     conn_string = "{0}://{1}:{2}@{3}".format(
         args.conn_type,
-        urllib.parse.quote_plus(args.login),
-        urllib.parse.quote_plus(args.password),
+        urllib.parse.quote_plus(login),
+        urllib.parse.quote_plus(password),
         args.host,
     )
 
@@ -44,6 +66,7 @@ def main(args):
             conn_string += "{0}={1}".format(key, urllib.parse.quote_plus(value))
     print("connection string:\n{}".format(conn_string))
 
+    # mac-specific: copy result to clipboard
     if args.clipboard:
         subprocess.run("pbcopy", universal_newlines=True, input=conn_string)
 
@@ -68,12 +91,18 @@ if __name__ == "__main__":
         help="copy to clipboard",
     )
     parser.add_argument("--host", nargs="?", default="")
-    parser.add_argument("-l", "--login", required=True)
-    parser.add_argument("-p", "--password", required=True)
+    parser.add_argument("-l", "--login", default="")
+    parser.add_argument("-p", "--password", default="")
+    parser.add_argument(
+        "--profile",
+        required=False,
+        help="profile name in credentials to read login, password, region, and token from, ~/.aws/credentials",
+    )
     parser.add_argument(
         "-x",
         "--extras",
         nargs="*",
+        default=[],
         help="extra metadata; space delimited <key>=<value> pairs",
     )
     args = parser.parse_args()

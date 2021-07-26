@@ -166,6 +166,12 @@ grep aws_session_token ~/.aws/credentials | awk '{print $3}' | pbcopy
 # you can url encode and build the environment variable manually
 # OR
 # use mwaa_connection.py to build connection string and copy to clipboard
+
+# reference your ~/.aws/credentials for values
+./tools/mwaa_connection.py --profile saml --clipboard \
+  -x role_arn=arn:aws:iam::499849230022:role/OrganizationAccountAccessRole
+
+# manually insert values
 ./tools/mwaa_connection.py \
   -l ASIAZW65Y6SIACFBUPVE \
   -p Air2oG9L3cIT0ioO0OBtehvn6nYfR2r1FQgM3YEy \
@@ -173,7 +179,7 @@ grep aws_session_token ~/.aws/credentials | awk '{print $3}' | pbcopy
   role_arn=arn:aws:iam::499849230022:role/OrganizationAccountAccessRole \
   aws_session_token=FwoGZXIvYXdzEAkaDNzgCTh36vwG/QdUyiKxAvmtOMrF6suFOmnp4CxoNKXPX7JzBaC+KWn8DymCTTylpdndri6QL11O4bqi0xldbn9k1pYMQ0zzLUMpgEd6qqRwBtJe+rigYC6ddvuqxhiKLxbfdRtNpMiqaG6kqYyJ9fux0z46B0v2KKMoaFXNS4yWXJqHqqNyXZ7pJx6Hdy81+1Dz3rn5As8cHQvkGI19HL3y5SzXkrI1bmRGA8GTw97IxmQKmCXE6tcSWjkxNlMG1TgzYk/kdS9uk9wefvkivAPeJBP9pSxy7mx8VNA1G+Vpowhbys6S0dktdl9+yq7Hlkocv0M3Y1ao9dTlRNWCcoi3ofdqs+j7Ftnomy7Cc6dej94ca0yX3K4qbd7aGiLpuBxB0MfhRdH8JH0y63IwBVsN42X2xmqi/cGQNq27IeHvKNTQ64cGMipbcW/wKhjyPIiAdi7jnf3UqNBM04TcICoCEczmK+NegxDG2sHQNFFq19k= \
   --clipboard
-
+  
 # with the result in your clipboard, update docker/.env for your connection string
 ```
 

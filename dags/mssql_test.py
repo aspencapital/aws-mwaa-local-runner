@@ -9,7 +9,7 @@ from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
 from airflow.utils.dates import days_ago
 
-SM_SECRETID_NAME = "airflow/connections/mssql_qa1"
+CONN_ID = "mssql_qa2"
 SQL_COMMAND = """SELECT TOP(9)* FROM [TDS LOANS];"""
 
 default_args = {
@@ -46,8 +46,6 @@ def load_connection(**kwargs):
         session.add(conn)
         session.commit()
 
-    return conn_id
-
 
 dag = DAG(
     dag_id=os.path.basename(__file__).replace(".py", ""),
@@ -59,13 +57,14 @@ dag = DAG(
 t1 = PythonOperator(
     dag=dag,
     task_id="load_connection",
-    op_kwargs={"secret_id": SM_SECRETID_NAME},
+    op_kwargs={"secret_id": f"airflow/connections/{CONN_ID}"},
     python_callable=load_connection,
+    do_xcom_push=False,
 )
 t2 = MsSqlOperator(
     dag=dag,
     task_id="selecting_table",
-    mssql_conn_id="mssql_qa1",
+    mssql_conn_id=CONN_ID,
     sql=SQL_COMMAND,
     database="TMO_AspenYo",
     autocommit=True,

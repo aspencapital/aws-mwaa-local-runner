@@ -47,7 +47,7 @@ def main(args):
         args.conn_type,
         urllib.parse.quote_plus(login),
         urllib.parse.quote_plus(password),
-        args.host,
+        urllib.parse.quote_plus(args.host),
     )
 
     if args.extras:

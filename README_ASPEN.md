@@ -179,6 +179,20 @@ grep aws_session_token ~/.aws/credentials | awk '{print $3}' | pbcopy
 # with the result in your clipboard, update docker/.env for your connection string
 ```
 
+## Useful Things
+
+### Test a Task with Airflow CLI
+
+```bash
+# shell into the airflow container with docker
+airflow tasks test -h
+
+# dag_id: mssql_test
+# task_id: selecting_table
+# execution_date: 2020-01-01
+airflow tasks test mssql_test selecting_table 2020-01-01
+```
+
 # References
 * [Example Airflow DAGs](https://github.com/airflow-plugins/Example-Airflow-DAGs)
 * [Linting & Formatting](https://py-vscode.readthedocs.io/en/latest/files/linting.html)

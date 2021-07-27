@@ -181,6 +181,18 @@ grep aws_session_token ~/.aws/credentials | awk '{print $3}' | pbcopy
 
 ## Useful Things
 
+### Generate SQL Server Connection Strings
+Get the login information from Keeper (or from Hashi Vault: http://10.101.0.251:8200/ui/vault/auth?with=okta). SQL Server dynamic ports are [here](https://aspencapital.atlassian.net/wiki/spaces/DEV/pages/2158919715/Laptop+Network+Access) in Confluence.
+
+```bash
+./tools/mwaa_connection.py --clipboard \
+  -c mssql \
+  -l saNodeQA \
+  -p 'single_quoted_password' \
+  --host devserver.flanderscapital.com\\qa2 \
+  --port 51534
+```
+
 ### Test a Task with Airflow CLI
 
 ```bash

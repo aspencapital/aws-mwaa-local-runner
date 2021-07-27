@@ -49,6 +49,8 @@ def main(args):
         urllib.parse.quote_plus(password),
         urllib.parse.quote_plus(args.host),
     )
+    if args.port:
+        conn_string += f":{args.port}"
 
     if args.extras:
         # capture key/value of extra
@@ -93,6 +95,7 @@ if __name__ == "__main__":
     parser.add_argument("--host", nargs="?", default="")
     parser.add_argument("-l", "--login", default="")
     parser.add_argument("-p", "--password", default="")
+    parser.add_argument("--port", help="host port", default="")
     parser.add_argument(
         "--profile",
         required=False,

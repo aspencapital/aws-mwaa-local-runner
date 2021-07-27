@@ -23,6 +23,14 @@ conda init zsh
 # create a virtual environment for mwaa development
 conda create -n mwaa python=3.7
 condo info --envs
+
+# install dependencies in conda:mwaa
+pip install -r docker/config/requirements.txt -c docker/config/constraints.txt
+pip install -r dags/requirements.txt
+
+# install dependencies for MsSqlOperator
+brew install postgresql
+brew install unixodbc
 ```
 
 To use the virtual environment in VSCode integrated terminal without having to manually switch, you will need to set `terminal.integrated.inheritEnv` to `false`. See [Integrated Terminal](https://code.visualstudio.com/updates/v1_36#_launch-terminals-with-clean-environments) in the linked Release Notes.
@@ -123,18 +131,6 @@ Your requirements should come from the [Reference for package extras](http://air
 
 apache-airflow[microsoft.mssql,odbc,samba]==2.0.2
 PySmbClient==0.1.5
-```
-
-## Testing
-
-```bash
-# install dependencies in conda:mwaa
-pip install -r docker/config/requirements.txt -c docker/config/constraints.txt
-pip install -r dags/requirements.txt
-
-# make MsSqlOperator work
-brew install postgresql
-brew install unixodbc
 ```
 
 ## Connecting to AWS with SAML

@@ -1,10 +1,10 @@
 import datetime as dt
 import os
-import re
 
 from airflow import DAG, settings
 from airflow.models import Connection
-from airflow.operators.python import PythonOperator
+from airflow.operators.dummy import DummyOperator
+from airflow.operators.python import BranchPythonOperator, PythonOperator
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
 from airflow.utils.dates import days_ago
@@ -21,30 +21,29 @@ default_args = {
 }
 
 
+def check_connection(**kwargs):
+    session = settings.Session()
+    connection = session.query(Connection).filter(Connection.conn_id == CONN_ID).first()
+    if connection:
+        return "query_table"
+    else:
+        return "load_connection"
+
+
 def load_connection(**kwargs):
     secret_id = kwargs.get("secret_id", None)
+
+    print(f"adding new conn_id: {CONN_ID}")
 
     # set up Secrets Manager
     hook = AwsBaseHook(client_type="secretsmanager")
     client = hook.get_client_type("secretsmanager")
     connectionString = client.get_secret_value(SecretId=secret_id)["SecretString"]
 
-    # get the conn_id
-    match = re.search("([^/]+)$", secret_id)
-    conn_id = match.group(1)
-
-    # lookup current connections
+    conn = Connection(conn_id=CONN_ID, uri=connectionString)
     session = settings.Session()
-    existing_connection = (
-        session.query(Connection).filter(Connection.conn_id == conn_id).first()
-    )
-
-    # add connection if not already present
-    if not existing_connection:
-        print(f"adding new conn_id: {conn_id}")
-        conn = Connection(conn_id=conn_id, uri=connectionString)
-        session.add(conn)
-        session.commit()
+    session.add(conn)
+    session.commit()
 
 
 dag = DAG(
@@ -54,20 +53,26 @@ dag = DAG(
     dagrun_timeout=dt.timedelta(hours=2),
     schedule_interval="@once",
 )
-t1 = PythonOperator(
+start = DummyOperator(dag=dag, task_id="start")
+check = BranchPythonOperator(
+    dag=dag, task_id="check_mssql_connection", python_callable=check_connection
+)
+load = PythonOperator(
     dag=dag,
     task_id="load_connection",
     op_kwargs={"secret_id": f"airflow/connections/{CONN_ID}"},
     python_callable=load_connection,
     do_xcom_push=False,
 )
-t2 = MsSqlOperator(
+query = MsSqlOperator(
     dag=dag,
-    task_id="selecting_table",
+    task_id="query_table",
+    trigger_rule="none_failed",
     mssql_conn_id=CONN_ID,
     sql=SQL_COMMAND,
     database="TMO_AspenYo",
     autocommit=True,
 )
 
-t1 >> t2
+start >> check >> load >> query
+check >> query

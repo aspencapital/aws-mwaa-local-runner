@@ -1,5 +1,8 @@
 {
   "editor.formatOnSave": true,
+  "files.associations": {
+    "*.j2.sql": "jinja-sql"
+  },
   "python.formatting.provider": "black",
   "python.linting.enabled": true,
   "python.linting.flake8Args": [

@@ -63,6 +63,11 @@ airflow connections export conn.env --format env
 less conn.env
 ```
 
+### VSCode
+
+#### VSCode Syntax Highlighting for Jinja SQL Files
+To get jinja and SQL syntax highlighting, install the **Better Jinja** extension (`samuelcolvin.jinjahtml`). In order for airflow to properly load SQL files, the filename extension must be `*.sql` which does not work with the extension (extension expects `*.sql.j2`). A custom `file.associations` setting has been made to properly handle files with extension `*.j2.sql` to make the extension work and keep airflow happy.
+
 ## Running the Airflow CLI
 You can shell into the container running `amazon/mwaa-local:2.0.2` to run airflow cli commands, but there is an extra step you must take to properly setup your environment.
 

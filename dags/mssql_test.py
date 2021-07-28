@@ -10,7 +10,6 @@ from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
 from airflow.utils.dates import days_ago
 
 CONN_ID = "mssql_qa2"
-SQL_COMMAND = """SELECT TOP(9)* FROM [TDS LOANS];"""
 
 default_args = {
     "owner": "airflow",
@@ -53,6 +52,7 @@ dag = DAG(
     description="test db connection",
     dagrun_timeout=dt.timedelta(hours=2),
     schedule_interval="@once",
+    template_searchpath="/usr/local/airflow/dags/include",
 )
 
 # encapsulate tasks with start/end
@@ -75,7 +75,7 @@ query = MsSqlOperator(
     task_id="query_table",
     trigger_rule="none_failed",
     mssql_conn_id=CONN_ID,
-    sql=SQL_COMMAND,
+    sql="mssql_test.sql",
     database="TMO_AspenYo",
     autocommit=True,
 )

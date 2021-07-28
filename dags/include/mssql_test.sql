@@ -1,1 +1,1 @@
-SELECT TOP(9)* FROM [TDS LOANS];
+SELECT TOP({{ params.count }})* FROM [TDS LOANS];

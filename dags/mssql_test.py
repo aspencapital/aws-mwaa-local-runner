@@ -77,6 +77,7 @@ query = MsSqlOperator(
     mssql_conn_id=CONN_ID,
     sql="mssql_test.sql",
     database="TMO_AspenYo",
+    params={"count": 5},
     autocommit=True,
 )
 

@@ -54,6 +54,7 @@ dag = DAG(
     schedule_interval="@once",
 )
 start = DummyOperator(dag=dag, task_id="start")
+end = DummyOperator(dag=dag, task_id="end")
 check = BranchPythonOperator(
     dag=dag, task_id="check_mssql_connection", python_callable=check_connection
 )
@@ -76,3 +77,4 @@ query = MsSqlOperator(
 
 start >> check >> load >> query
 check >> query
+query >> end

@@ -47,14 +47,19 @@ def load_connection(**kwargs):
 
 
 dag = DAG(
+    # auto name the dag with filename
     dag_id=os.path.basename(__file__).replace(".py", ""),
     default_args=default_args,
     description="test db connection",
     dagrun_timeout=dt.timedelta(hours=2),
     schedule_interval="@once",
 )
+
+# encapsulate tasks with start/end
 start = DummyOperator(dag=dag, task_id="start")
 end = DummyOperator(dag=dag, task_id="end")
+
+# task definitions
 check = BranchPythonOperator(
     dag=dag, task_id="check_mssql_connection", python_callable=check_connection
 )
@@ -75,6 +80,7 @@ query = MsSqlOperator(
     autocommit=True,
 )
 
+# task relationships
 start >> check >> load >> query
 check >> query
 query >> end

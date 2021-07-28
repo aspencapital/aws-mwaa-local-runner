@@ -45,7 +45,7 @@ def load_connection(**kwargs):
     session.commit()
 
 
-dag = DAG(
+with DAG(
     # auto name the dag with filename
     dag_id=os.path.basename(__file__).replace(".py", ""),
     default_args=default_args,
@@ -53,35 +53,33 @@ dag = DAG(
     dagrun_timeout=dt.timedelta(hours=2),
     schedule_interval="@once",
     template_searchpath="/usr/local/airflow/dags/include",
-)
+) as dag:
 
-# encapsulate tasks with start/end
-start = DummyOperator(dag=dag, task_id="start")
-end = DummyOperator(dag=dag, task_id="end")
+    # encapsulate tasks with start/end
+    start = DummyOperator(task_id="start")
+    end = DummyOperator(task_id="end")
 
-# task definitions
-check = BranchPythonOperator(
-    dag=dag, task_id="check_mssql_connection", python_callable=check_connection
-)
-load = PythonOperator(
-    dag=dag,
-    task_id="load_connection",
-    op_kwargs={"secret_id": f"airflow/connections/{CONN_ID}"},
-    python_callable=load_connection,
-    do_xcom_push=False,
-)
-query = MsSqlOperator(
-    dag=dag,
-    task_id="query_table",
-    trigger_rule="none_failed",
-    mssql_conn_id=CONN_ID,
-    sql="mssql_test.j2.sql",
-    database="TMO_AspenYo",
-    params={"count": 5},
-    autocommit=True,
-)
+    # task definitions
+    check = BranchPythonOperator(
+        task_id="check_mssql_connection", python_callable=check_connection
+    )
+    load = PythonOperator(
+        task_id="load_connection",
+        op_kwargs={"secret_id": f"airflow/connections/{CONN_ID}"},
+        python_callable=load_connection,
+        do_xcom_push=False,
+    )
+    query = MsSqlOperator(
+        task_id="query_table",
+        trigger_rule="none_failed",
+        mssql_conn_id=CONN_ID,
+        sql="mssql_test.j2.sql",
+        database="TMO_AspenYo",
+        params={"count": 5},
+        autocommit=True,
+    )
 
-# task relationships
-start >> check >> load >> query
-check >> query
-query >> end
+    # task relationships
+    start >> check >> load >> query
+    check >> query
+    query >> end

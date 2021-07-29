@@ -14,23 +14,24 @@ brew install --cask anaconda
 # there was a permissions issue with ~/.conda directory after installation
 # the directory was owned by root which causes other problems
 # if this happens use the following to fix
-sudo chown -R $USER:staff ~/.conda
+sudo chown -R ${USER}:staff ~/.conda
 
 # identify the shell you are using
-conda init zsh
+/usr/local/anaconda3/bin/conda init zsh
 # relaunch terminal
 
 # create a virtual environment for mwaa development
 conda create -n mwaa python=3.7
-condo info --envs
-
-# install dependencies in conda:mwaa
-pip install -r docker/config/requirements.txt -c docker/config/constraints.txt
-pip install -r dags/requirements.txt
+conda info --envs
 
 # install dependencies for MsSqlOperator
 brew install postgresql
 brew install unixodbc
+
+# install dependencies in conda:mwaa
+conda activate mwaa
+pip install -r docker/config/requirements.txt -c docker/config/constraints.txt
+pip install -r dags/requirements.txt
 ```
 
 To use the virtual environment in VSCode integrated terminal without having to manually switch, you will need to set `terminal.integrated.inheritEnv` to `false`. See [Integrated Terminal](https://code.visualstudio.com/updates/v1_36#_launch-terminals-with-clean-environments) in the linked Release Notes.
@@ -43,9 +44,20 @@ Linting tools must be installed with `tools/requirements.txt` to enable autoform
 pip install -r tools/requirements.txt
 ```
 
+### VSCode Extensions
+Ensure the following extensions are installed:
+* ms-python.vscode-pylance
+* ms-python.python
+
 ### Environment Variables
 Add custom environment variables with a `docker/.env` file which will not be captured by git.
 
+The following environment variables are currently used:
+* `AIRFLOW__CORE__FERNET_KEY=xxx`
+* `AIRFLOW_CONN_AWS_DEFAULT=aws://...`
+* `AIRFLOW_CONN_{CONN_ID}=mssql://...`
+
+The next section details setting up database connections.
 ### Connections
 Custom connections can be added to `docker/.env` using the format `AIRFLOW_CONN_{CONN_ID}`, see the [documentation](https://airflow.apache.org/docs/apache-airflow/stable/howto/connection.html#storing-a-connection-in-environment-variables). But, any connections created this way will **NOT** be visible in the airflow UI although they will still be accessible to the dags.
 

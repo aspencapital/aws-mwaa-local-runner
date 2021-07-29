@@ -1,10 +1,11 @@
 import datetime as dt
 import os
 
-from airflow import DAG, settings
+from airflow import settings
+from airflow.decorators import dag, task
 from airflow.models import Connection
 from airflow.operators.dummy import DummyOperator
-from airflow.operators.python import BranchPythonOperator, PythonOperator
+from airflow.operators.python import BranchPythonOperator
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
 from airflow.utils.dates import days_ago
@@ -29,8 +30,8 @@ def check_connection(**kwargs):
         return "load_connection"
 
 
-def load_connection(**kwargs):
-    secret_id = kwargs.get("secret_id", None)
+@task(do_xcom_push=False)
+def load_connection(secret_id):
 
     print(f"adding new conn_id: {CONN_ID}")
 
@@ -45,7 +46,7 @@ def load_connection(**kwargs):
     session.commit()
 
 
-with DAG(
+@dag(
     # auto name the dag with filename
     dag_id=os.path.basename(__file__).replace(".py", ""),
     default_args=default_args,
@@ -53,8 +54,8 @@ with DAG(
     dagrun_timeout=dt.timedelta(hours=2),
     schedule_interval="@once",
     template_searchpath="/usr/local/airflow/dags/include",
-) as dag:
-
+)
+def generate_dag():
     # encapsulate tasks with start/end
     start = DummyOperator(task_id="start")
     end = DummyOperator(task_id="end")
@@ -63,12 +64,7 @@ with DAG(
     check = BranchPythonOperator(
         task_id="check_mssql_connection", python_callable=check_connection
     )
-    load = PythonOperator(
-        task_id="load_connection",
-        op_kwargs={"secret_id": f"airflow/connections/{CONN_ID}"},
-        python_callable=load_connection,
-        do_xcom_push=False,
-    )
+    load = load_connection(f"airflow/connections/{CONN_ID}")
     query = MsSqlOperator(
         task_id="query_table",
         trigger_rule="none_failed",
@@ -83,3 +79,6 @@ with DAG(
     start >> check >> load >> query
     check >> query
     query >> end
+
+
+dag = generate_dag()

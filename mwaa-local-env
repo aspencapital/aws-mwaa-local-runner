@@ -12,6 +12,7 @@ display_help() {
    echo "---commands---"
    echo "help                   Print CLI help"
    echo "build-image            Build Image Locally"
+   echo "clean                  Cleanup docker containers and volumes"
    echo "reset-db               Reset local PostgresDB container."
    echo "start                  Start Airflow local environment. (LocalExecutor, Using postgres DB)"
    echo "test-requirements      Install requirements on an ephemeral instance of the container."

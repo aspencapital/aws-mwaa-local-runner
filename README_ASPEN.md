@@ -30,19 +30,19 @@ brew install unixodbc
 
 # install dependencies in conda:mwaa
 conda activate mwaa
+# mwaa dependencies
 pip install -r docker/config/requirements.txt -c docker/config/constraints.txt
+# dag dependencies
 pip install -r dags/requirements.txt
+# local development dependencies
+pip install -r tools/requirements.txt
 ```
 
 To use the virtual environment in VSCode integrated terminal without having to manually switch, you will need to set `terminal.integrated.inheritEnv` to `false`. See [Integrated Terminal](https://code.visualstudio.com/updates/v1_36#_launch-terminals-with-clean-environments) in the linked Release Notes.
 
 The correct interpreter will be chosen via the `python.pythonPath` setting in `.vscode/settings.json` file.
 
-Linting tools must be installed with `tools/requirements.txt` to enable autoformatting capabilities. `.vscode.settings` configures Python linting and expects the requirements dependencies to be present.
-
-```bash
-pip install -r tools/requirements.txt
-```
+Linting tools must be installed with `tools/requirements.txt` to enable autoformatting capabilities. `.vscode.settings` configures Python linting and expects the requirements dependencies to be present. The install command is given in the above code block when installing other python dependencies.
 
 ### VSCode Extensions
 Ensure the following extensions are installed:

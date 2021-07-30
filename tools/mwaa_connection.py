@@ -51,6 +51,8 @@ def main(args):
     )
     if args.port:
         conn_string += f":{args.port}"
+    if args.db:
+        conn_string += f"/{args.db}"
 
     if args.extras:
         # capture key/value of extra
@@ -93,6 +95,7 @@ if __name__ == "__main__":
         help="copy to clipboard",
     )
     parser.add_argument("--host", nargs="?", default="")
+    parser.add_argument("--db", nargs="?", default="")
     parser.add_argument("-l", "--login", default="")
     parser.add_argument("-p", "--password", default="")
     parser.add_argument("--port", help="host port", default="")

@@ -2,8 +2,8 @@ import datetime as dt
 import logging
 import os
 
-from airflow import settings
-from airflow.decorators import dag, task
+from airflow import DAG, settings
+from airflow.decorators import task
 from airflow.models import Connection
 from airflow.operators.dummy import DummyOperator
 from airflow.operators.python import BranchPythonOperator
@@ -23,7 +23,7 @@ default_args = {
 }
 
 
-def check_connection(**kwargs):
+def check_connection():
     session = settings.Session()
     connection = session.query(Connection).filter(Connection.conn_id == CONN_ID).first()
     if connection:
@@ -80,7 +80,7 @@ def hook_example2(conn_id, database, query):
         logging.info(row)
 
 
-@dag(
+with DAG(
     # auto name the dag with filename
     dag_id=os.path.basename(__file__).replace(".py", ""),
     default_args=default_args,
@@ -88,8 +88,7 @@ def hook_example2(conn_id, database, query):
     dagrun_timeout=dt.timedelta(hours=2),
     schedule_interval="@once",
     template_searchpath="/usr/local/airflow/dags/include",
-)
-def generate_dag():
+) as dag:
     # encapsulate tasks with start/end
     start = DummyOperator(task_id="start")
     end = DummyOperator(task_id="end")
@@ -109,12 +108,8 @@ def generate_dag():
         autocommit=True,
     )
     select_query = "SELECT TOP(5)* FROM [TDS LOANS];"
-    _hook_example1 = hook_example1(
-        conn_id=CONN_ID, database="TMO_AspenYo", query=select_query
-    )
-    _hook_example2 = hook_example2(
-        conn_id=CONN_ID, database="TMO_AspenYo", query=select_query
-    )
+    _hook_example1 = hook_example1(CONN_ID, "TMO_AspenYo", select_query)
+    _hook_example2 = hook_example2(CONN_ID, "TMO_AspenYo", select_query)
 
     # task relationships
     (
@@ -126,6 +121,3 @@ def generate_dag():
         >> end
     )
     _check_mssql_connection >> _op_example
-
-
-dag = generate_dag()

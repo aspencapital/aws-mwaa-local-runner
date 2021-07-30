@@ -182,7 +182,7 @@ grep aws_session_token ~/.aws/credentials | awk '{print $3}' | pbcopy
 
 # reference your ~/.aws/credentials for values
 ./tools/mwaa_connection.py --profile saml --clipboard \
-  -x role_arn=arn:aws:iam::499849230022:role/OrganizationAccountAccessRole
+  -x role_arn=arn:aws:iam::000000000000:role/SOME_ROLE
 
 # manually insert values
 ./tools/mwaa_connection.py \
